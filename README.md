@@ -1,20 +1,18 @@
 # Maipú Ahorra 
 
-**Maipú Ahorra** es una aplicación web de comparación de precios diseñada con estética Neón. Permite a los ciudadanos encontrar los supermercados locales con los precios más baratos para sus listas de compras, generando códigos de descuento y brindando métricas de *Business Intelligence* a los dueños de los locales.
-
-*Proyecto final desarrollado para Seminario de Informática.*
+**Maipú Ahorra** es una aplicación web de comparación de precios diseñada con estética Neón desarrollada para el Seminario Final de Informática. Esta app permite a los ciudadanos encontrar los supermercados locales con los precios más baratos para sus listas de compras, generando códigos de descuento y brindando métricas de *Business Intelligence* a los dueños de los locales.
 
 ## Características Principales
 
 ### Para Compradores (Clientes)
-- **Catálogo Global:** Búsqueda rápida de productos por nombre o categoría.
-- **Carrito Inteligente:** Agrega productos a tu lista (ajustando las cantidades) y el sistema calculará automáticamente qué supermercado local ofrece el total más barato.
-- **Códigos de Descuento:** Al confirmar la lista, se autogenera un código único que puedes presentar en la caja del local ganador.
-- **Verificación de Seguridad:** Sistema de registro con validación por correo electrónico.
+**Catálogo Global:** Búsqueda rápida de productos por nombre o categoría.
+**Carrito Inteligente:** Agrega productos a tu lista (ajustando las cantidades) y el sistema calculará automáticamente qué supermercado local ofrece el total más barato.
+**Códigos de Descuento:** Al confirmar la lista, se autogenera un código único que puedes presentar en la caja del local ganador.
+**Verificación de Seguridad:** Sistema de registro con validación por correo electrónico.
 
 ### Para Dueños de Locales (Mercados)
-- **Gestión de Precios:** Actualización rápida de los precios del catálogo para competir de manera directa.
-- **Dashboard de Business Intelligence (BI):** Tarjetas de métricas en tiempo real que muestran cuántas listas han ganado en el mes, ingresos potenciales generados y número de clientes únicos atraídos por sus ofertas.
+**Gestión de Precios:** Actualización rápida de los precios del catálogo para competir de manera directa.
+**Dashboard de Business Intelligence (BI):** Tarjetas de métricas en tiempo real que muestran cuántas listas han ganado en el mes, ingresos potenciales generados y número de clientes únicos atraídos por sus ofertas.
 
 ## Tecnologías
 
