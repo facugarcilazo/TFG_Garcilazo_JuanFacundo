@@ -53,7 +53,7 @@ proyecto-final-seminario/
 
 Instalación y Ejecución Local
 
-Pasos para correr el proyecto loclamente:
+Pasos para correr el proyecto localmente:
 
 1. **Clonar el repositorio**
    ```bash
