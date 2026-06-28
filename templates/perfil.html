@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Mi Perfil - Market Compare{% endblock %}
+
+{% block content %}
+<div class="card fade-in" style="max-width: 500px; margin: 3rem auto; padding: 2rem;">
+    <h2 class="neon-text" style="text-align: center; margin-bottom: 2rem;">Editar Perfil</h2>
+
+    <form method="POST" action="{{ url_for('auth.profile') }}">
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="username" style="display: block; margin-bottom: 0.5rem; color: var(--text-primary);">Nombre de Usuario</label>
+            <input type="text" id="username" name="username" class="form-control" value="{{ current_user.username }}" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="email" style="display: block; margin-bottom: 0.5rem; color: var(--text-primary);">Correo Electrónico</label>
+            <input type="email" id="email" name="email" class="form-control" value="{{ current_user.email }}" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 2.5rem;">
+            <label for="password" style="display: block; margin-bottom: 0.5rem; color: var(--text-primary);">Nueva Contraseña <span style="font-size: 0.8rem; color: #888;">(Dejar en blanco para no cambiar)</span></label>
+            <input type="password" id="password" name="password" class="form-control" placeholder="Escribe una nueva contraseña si deseas cambiarla">
+        </div>
+
+        <div style="display: flex; gap: 1rem; justify-content: space-between;">
+            {% if current_user.role == 'market' %}
+            <a href="{{ url_for('market_dashboard') }}" class="btn-outline" style="text-decoration: none; text-align: center; flex: 1;">Cancelar</a>
+            {% else %}
+            <a href="{{ url_for('client_home') }}" class="btn-outline" style="text-decoration: none; text-align: center; flex: 1;">Cancelar</a>
+            {% endif %}
+            
+            <button type="submit" class="btn-primary" style="flex: 1;">Guardar Cambios</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

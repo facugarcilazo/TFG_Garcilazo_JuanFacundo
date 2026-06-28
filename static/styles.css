@@ -1,0 +1,215 @@
+:root {
+    --bg-color: #050814;
+    --card-bg: #111625;
+    --neon-blue: #00f3ff;
+    --neon-blue-dark: #00a8ff;
+    --neon-pink: #ff2a4b;
+    --neon-pink-dark: #cc1d38;
+    --text-primary: #d1d5db;
+    --text-light: #ffffff;
+    --font-main: 'Outfit', sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Typography & Neons */
+.neon-text {
+    color: var(--neon-blue);
+    text-shadow: 0 0 5px var(--neon-blue), 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
+}
+
+.neon-text-alt {
+    color: var(--neon-pink);
+    text-shadow: 0 0 5px var(--neon-pink), 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink);
+}
+
+h1,
+h2,
+h3,
+h4 {
+    color: var(--text-light);
+    margin-bottom: 1rem;
+}
+
+a {
+    text-decoration: none;
+    color: var(--neon-blue);
+    transition: all 0.3s ease;
+}
+
+a:hover {
+    color: var(--neon-blue-dark);
+    text-shadow: 0 0 8px var(--neon-blue-dark);
+}
+
+/* Layout */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 0;
+    flex-grow: 1;
+}
+
+/* Navigation */
+.navbar {
+    background-color: var(--card-bg);
+    padding: 1rem 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--neon-blue-dark);
+    box-shadow: 0 4px 15px rgba(102, 252, 241, 0.1);
+}
+
+.navbar .logo a {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-light);
+}
+
+.nav-links {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+/* Buttons */
+.btn-primary,
+.btn-outline {
+    padding: 0.5rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    font-family: var(--font-main);
+    font-size: 1rem;
+}
+
+.btn-primary {
+    background-color: var(--neon-blue);
+    color: var(--bg-color);
+    box-shadow: 0 0 10px var(--neon-blue);
+}
+
+.btn-primary:hover {
+    background-color: var(--text-light);
+    box-shadow: 0 0 20px var(--text-light);
+    color: var(--bg-color);
+    transform: translateY(-2px);
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 2px solid var(--neon-pink);
+    color: var(--neon-pink);
+}
+
+.btn-outline:hover {
+    background-color: var(--neon-pink);
+    color: var(--text-light);
+    box-shadow: 0 0 10px var(--neon-pink);
+}
+
+/* Forms */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    background-color: rgba(31, 40, 51, 0.7);
+    border: 1px solid var(--neon-blue-dark);
+    color: var(--text-light);
+    font-family: var(--font-main);
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 10px rgba(102, 252, 241, 0.3);
+}
+
+/* Cards */
+.card {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    padding: 2rem;
+    border: 1px solid rgba(102, 252, 241, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(102, 252, 241, 0.15);
+}
+
+/* Flash Messages */
+.flash-messages {
+    margin-bottom: 2rem;
+}
+
+.alert {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    animation: slideIn 0.3s ease-out;
+}
+
+.alert-success {
+    background-color: rgba(102, 252, 241, 0.1);
+    border: 1px solid var(--neon-blue);
+    color: var(--neon-blue);
+}
+
+.alert-error,
+.alert-danger {
+    background-color: rgba(255, 107, 107, 0.1);
+    border: 1px solid #ff6b6b;
+    color: #ff6b6b;
+}
+
+/* Animations */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}

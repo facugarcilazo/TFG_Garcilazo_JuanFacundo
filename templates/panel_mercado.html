@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Panel de Mercado - Market Compare{% endblock %}
+
+{% block content %}
+<div class="card fade-in" style="margin-top: 2rem;">
+    <div
+        style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--neon-blue-dark); padding-bottom: 1rem; margin-bottom: 2rem;">
+        <h2 class="neon-text">Panel del Mercado: {{ current_user.markets[0].name }}</h2>
+        <button class="btn-primary" onclick="toggleAddProduct()">+ Nuevo Precio</button>
+    </div>
+
+    <!-- BI Dashboard Section -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+        <div class="card" style="text-align: center; border: 1px solid var(--neon-blue); box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);">
+            <h4 style="color: var(--text-primary); margin-bottom: 0.5rem;">Listas Ganadas (Mes)</h4>
+            <div class="neon-text" style="font-size: 2.5rem; font-weight: bold;">{{ bi_stats.monthly_won_lists }}</div>
+            <p style="font-size: 0.8rem; color: #888;">Histórico global: {{ bi_stats.total_won_lists }}</p>
+        </div>
+        
+        <div class="card" style="text-align: center; border: 1px solid var(--neon-pink); box-shadow: 0 0 15px rgba(255, 42, 75, 0.1);">
+            <h4 style="color: var(--text-primary); margin-bottom: 0.5rem;">Clientes Únicos (Mes)</h4>
+            <div class="neon-text-alt" style="font-size: 2.5rem; font-weight: bold;">{{ bi_stats.monthly_unique_clients }}</div>
+            <p style="font-size: 0.8rem; color: #888;">Histórico global: {{ bi_stats.unique_clients }}</p>
+        </div>
+
+        <div class="card" style="text-align: center; border: 1px solid var(--neon-blue-dark);">
+            <h4 style="color: var(--text-primary); margin-bottom: 0.5rem;">Ingresos Potenciales (Mes)</h4>
+            <div class="text-light" style="font-size: 2.5rem; font-weight: bold; color: #4CAF50;">${{ "%.2f"|format(bi_stats.monthly_revenue) }}</div>
+            <p style="font-size: 0.8rem; color: #888;">Histórico global: ${{ "%.2f"|format(bi_stats.total_revenue) }}</p>
+        </div>
+    </div>
+
+    <!-- Form for adding a product price (hidden by default) -->
+    <div id="addProductForm" class="card"
+        style="display: none; background-color: rgba(31, 40, 51, 0.5); margin-bottom: 2rem; border-color: var(--neon-blue);">
+        <h3 class="neon-text">Actualizar Precio de Producto</h3>
+        <form method="POST" action="{{ url_for('market_update_price') }}">
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <div class="form-group" style="flex: 1; min-width: 200px;">
+                    <label>Producto Existent (Catálogo):</label>
+                    <select name="product_id" class="form-control" required>
+                        <option value="">-- Seleccionar --</option>
+                        {% for prod in all_products %}
+                        <option value="{{ prod.id }}">{{ prod.name }} ({{ prod.category }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group" style="flex: 1; min-width: 150px;">
+                    <label>Precio ($):</label>
+                    <input type="number" step="0.01" name="price" class="form-control" required
+                        placeholder="Ej: 150.50">
+                </div>
+                <div class="form-group" style="display: flex; align-items: flex-end;">
+                    <button type="submit" class="btn-primary" style="height: 45px;">Guardar Precio</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Table of current prices -->
+    <h3 style="margin-bottom: 1rem;">Mis Precios Publicados</h3>
+    {% if market_prices %}
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="border-bottom: 1px solid var(--neon-blue-dark); color: var(--neon-blue);">
+                    <th style="padding: 1rem;">Producto</th>
+                    <th style="padding: 1rem;">Categoría</th>
+                    <th style="padding: 1rem;">Precio</th>
+                    <th style="padding: 1rem;">Última Actualización</th>
+                    <th style="padding: 1rem;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mp in market_prices %}
+                <tr style="border-bottom: 1px solid rgba(102, 252, 241, 0.2);">
+                    <td style="padding: 1rem;">{{ mp.product.name }}</td>
+                    <td style="padding: 1rem;">{{ mp.product.category }}</td>
+                    <td style="padding: 1rem;" class="neon-text">${{ "%.2f"|format(mp.price) }}</td>
+                    <td style="padding: 1rem;">{{ mp.last_updated.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td style="padding: 1rem;">
+                        <a href="#" class="btn-outline" style="padding: 0.3rem 0.8rem; font-size: 0.8rem;">Editar</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p style="color: var(--text-primary); text-align: center; margin: 2rem 0;">No tienes precios actualizados. ¡Agrega
+        uno para empezar!</p>
+    {% endif %}
+</div>
+
+<script>
+    function toggleAddProduct() {
+        const form = document.getElementById('addProductForm');
+        if (form.style.display === 'none') {
+            form.style.display = 'block';
+            form.classList.add('fade-in');
+        } else {
+            form.style.display = 'none';
+        }
+    }
+</script>
+{% endblock %}

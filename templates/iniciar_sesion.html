@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Iniciar Sesión - Market Compare{% endblock %}
+
+{% block content %}
+<div class="card fade-in" style="max-width: 400px; margin: 5vh auto;">
+    <h2 class="neon-text" style="text-align: center; margin-bottom: 2rem;">Ingreso</h2>
+
+    <form method="POST" action="{{ url_for('auth.login') }}">
+        <div class="form-group">
+            <label for="email" style="display: block; margin-bottom: 0.5rem;">Correo Electrónico</label>
+            <input type="email" id="email" name="email" class="form-control" required placeholder="tu@email.com">
+        </div>
+
+        <div class="form-group">
+            <label for="password" style="display: block; margin-bottom: 0.5rem;">Contraseña</label>
+            <input type="password" id="password" name="password" class="form-control" required placeholder="********">
+        </div>
+
+        <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem;">
+            <input type="checkbox" id="remember" name="remember" style="width: auto;">
+            <label for="remember" style="margin: 0; font-size: 0.9rem; color: var(--text-primary);">Recordarme</label>
+        </div>
+
+        <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Iniciar Sesión</button>
+    </form>
+
+    <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; line-height: 1.8;">
+        ¿No tienes cuenta?<br>
+        <a href="{{ url_for('auth.register') }}">Registrarse como Comprador</a><br>
+        <a href="{{ url_for('auth.register', type='market') }}" style="color: var(--neon-pink);">Registrar un Mercado Local</a>
+    </p>
+</div>
+{% endblock %}

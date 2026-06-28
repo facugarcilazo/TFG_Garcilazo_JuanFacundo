@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Código Generado - Market Compare{% endblock %}
+
+{% block content %}
+<div class="fade-in" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70vh; text-align: center; padding: 2rem;">
+    
+    <h1 class="neon-text" style="font-size: 2.5rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 2px;">
+        Presenta este código en caja
+    </h1>
+    
+    <h2 style="font-size: 1.8rem; margin-bottom: 2rem; color: var(--text-primary);">
+        Tu compra es de <span class="neon-text-alt" style="font-weight: bold;">${{ "%.2f"|format(code.total_amount) }}</span>
+    </h2>
+
+    <div style="background-color: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 0 30px rgba(102, 252, 241, 0.3); margin-bottom: 2rem;">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data={{ code.code }}" alt="QR Code" style="display: block;">
+    </div>
+    
+    <h3 style="letter-spacing: 3px; font-size: 1.5rem; margin-bottom: 2rem; color: var(--neon-blue);">{{ code.code }}</h3>
+
+    <!-- Donation Section -->
+    {% if not code.used and code.donation_amount == 0 %}
+    <div class="card" style="width: 100%; max-width: 400px; text-align: center;">
+        <h4 style="margin-bottom: 1rem;" class="neon-text">¿Quieres donar?</h4>
+        
+        <form method="POST" action="{{ url_for('client_donate', code_id=code.id) }}" style="display: flex; flex-direction: column; gap: 1rem;">
+            <select id="donation_type_select_{{ code.id }}" name="donation_type" class="form-control" style="font-size: 1rem; padding: 0.8rem;" onchange="toggleCustomAmount(this, '{{ code.id }}')" required>
+                <option value="">Seleccione una opción...</option>
+                {% if code.savings_amount > 0 %}
+                <option value="savings">Donar ahorro de esta compra (${{ "%.2f"|format(code.savings_amount) }})</option>
+                {% endif %}
+                <option value="custom">Donar monto específico</option>
+            </select>
+            
+            <div id="custom_amount_div_{{ code.id }}" style="display: none;">
+                <input type="number" step="0.01" min="1" name="custom_amount" class="form-control" placeholder="Escribir monto a donar" style="font-size: 1rem; padding: 0.8rem; width: 100%; box-sizing: border-box;">
+            </div>
+
+            <button type="submit" class="btn-primary" style="font-size: 1.1rem; padding: 0.8rem; margin-top: 0.5rem;">Confirmar Donación</button>
+        </form>
+    </div>
+    
+    <script>
+    function toggleCustomAmount(selectElement, codeId) {
+        var customDiv = document.getElementById('custom_amount_div_' + codeId);
+        var customInput = customDiv.querySelector('input');
+        if (selectElement.value === 'custom') {
+            customDiv.style.display = 'block';
+            customInput.setAttribute('required', 'required');
+        } else {
+            customDiv.style.display = 'none';
+            customInput.removeAttribute('required');
+        }
+    }
+    </script>
+    {% elif code.donation_amount > 0 %}
+    <div class="card" style="width: 100%; max-width: 400px; text-align: center;">
+        <h4 class="neon-text-alt" style="margin-bottom: 0;">¡Has donado ${{ "%.2f"|format(code.donation_amount) }}! Gracias.</h4>
+    </div>
+    {% endif %}
+
+    <div style="margin-top: 3rem;">
+        <a href="{{ url_for('client_home') }}" class="btn-outline">Volver a Mi Panel</a>
+    </div>
+
+</div>
+{% endblock %}

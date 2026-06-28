@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Mi Panel - Market Compare{% endblock %}
+
+{% block content %}
+<div class="card fade-in" style="margin-top: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2 class="neon-text">Tienda</h2>
+        <a href="{{ url_for('client_home') }}" class="btn-outline">Volver al Panel</a>
+    </div>
+
+    <div style="display: flex; gap: 2rem; flex-wrap: wrap; margin-top: 2rem;">
+
+        <!-- Product Search Section -->
+        <div style="flex: 2; min-width: 300px;">
+            <h3>Buscar Productos</h3>
+            <form method="GET" action="{{ url_for('client_shop') }}"
+                style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                <input type="text" name="q" value="{{ request.args.get('q', '') }}" class="form-control"
+                    placeholder="Buscar por nombre o categoría...">
+                <button type="submit" class="btn-primary">Buscar</button>
+            </form>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+                {% for prod in products %}
+                <div class="card" style="padding: 1rem; text-align: center; border-color: var(--neon-blue-dark);">
+                    {% if prod.image_url %}
+                    <img src="{{ url_for('static', filename=prod.image_url) }}" alt="{{ prod.name }}" style="width: 100%; height: 120px; object-fit: cover; margin-bottom: 0.5rem; border-radius: 8px;">
+                    {% endif %}
+                    <h4 style="margin-bottom: 0.5rem; font-size: 1.1rem;">{{ prod.name }}</h4>
+                    <p style="color: var(--text-primary); font-size: 0.9rem; margin-bottom: 1rem;">{{ prod.category }}</p>
+                    <form method="POST" action="{{ url_for('client_add_to_list') }}" style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+                        <input type="hidden" name="product_id" value="{{ prod.id }}">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; justify-content: center;">
+                            <button type="button" class="btn-outline" style="padding: 0.2rem 0.7rem; border-radius: 4px;" onclick="let input = this.nextElementSibling; if(input.value > 1) input.value = parseInt(input.value) - 1">-</button>
+                            <input type="number" name="quantity" value="1" min="1" style="width: 45px; text-align: center; background: rgba(31, 40, 51, 0.7); border: 1px solid var(--neon-blue); color: var(--text-light); border-radius: 4px; padding: 0.2rem; font-family: var(--font-main);" readonly>
+                            <button type="button" class="btn-outline" style="padding: 0.2rem 0.6rem; border-radius: 4px;" onclick="let input = this.previousElementSibling; input.value = parseInt(input.value) + 1">+</button>
+                        </div>
+                        <button type="submit" class="btn-outline" style="width: 100%; font-size: 0.9rem;">Agregar a
+                            Lista</button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Shopping List Section -->
+        <div
+            style="flex: 1; min-width: 300px; background-color: rgba(31, 40, 51, 0.5); padding: 1.5rem; border-radius: 8px;">
+            <h3 class="neon-text">Mi Lista Actual</h3>
+
+            {% if active_list and active_list.items %}
+            <ul style="list-style: none; margin-bottom: 1.5rem;">
+                {% for item in active_list.items %}
+                <li
+                    style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid rgba(102, 252, 241, 0.2);">
+                    <span>{{ item.quantity }}x {{ item.product.name }}</span>
+                    <form method="POST" action="{{ url_for('client_remove_item', item_id=item.id) }}"
+                        style="display: inline;">
+                        <button type="submit"
+                            style="background:none; border:none; color: #ff6b6b; cursor: pointer;">&times;</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+
+            {% if market_totals %}
+            <div style="background-color: rgba(102, 252, 241, 0.1); border: 1px solid var(--neon-blue); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; text-align: center; box-shadow: 0 0 15px rgba(102, 252, 241, 0.2);">
+                <h4 style="color: var(--neon-blue); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">⭐ Mejor Opción ⭐</h4>
+                <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">Te recomendamos comprar en <strong class="neon-text" style="font-size: 1.2rem;">{{ market_totals[0].market_name }}</strong></p>
+                <p style="font-size: 0.9rem; color: var(--text-primary);">Total de tu lista: <strong style="color: white;">${{ "%.2f"|format(market_totals[0].total) }}</strong></p>
+                
+                {% if market_totals|length > 1 %}
+                {% set difference = market_totals[-1].total - market_totals[0].total %}
+                {% if difference > 0 %}
+                <p style="font-size: 0.85rem; color: #4CAF50; margin-top: 0.5rem; font-weight: bold;">
+                    ¡Ahorras ${{ "%.2f"|format(difference) }} comparado con el mercado más caro!
+                </p>
+                {% endif %}
+                {% endif %}
+            </div>
+
+            <details style="margin-bottom: 1.5rem; font-size: 0.9rem;">
+                <summary style="cursor: pointer; color: var(--text-primary); margin-bottom: 0.5rem;">Ver comparación con otros mercados</summary>
+                <div style="margin-top: 0.5rem; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 4px;">
+                    {% for mt in market_totals %}
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding-bottom: 0.2rem; {% if not loop.last %}border-bottom: 1px solid rgba(255,255,255,0.1);{% endif %}">
+                        <span>{{ mt.market_name }}</span>
+                        <span class="{% if loop.first %}neon-text{% else %}text-light{% endif %}" style="font-weight: bold;">
+                            ${{ "%.2f"|format(mt.total) }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </details>
+            {% else %}
+            <h4 style="margin-bottom: 0.5rem;">Comparación de Mercados</h4>
+            <p style="color: var(--text-primary); margin-bottom: 1.5rem; font-size: 0.9rem;">Aún no hay suficientes datos de precios para comparar todos tus productos en los mercados disponibles.</p>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('client_confirm_list') }}">
+                <button type="submit" class="btn-primary" style="width: 100%;">Confirmar y Generar Código</button>
+            </form>
+            {% else %}
+            <p style="color: var(--text-primary); text-align: center; margin-top: 2rem;">Tu lista está vacía.</p>
+            {% endif %}
+        </div>
+    </div>
+
+
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Inicio - Maipú Ahorra{% endblock %}
+
+{% block content %}
+<div class="hero fade-in" style="text-align: center; margin-top: 5vh;">
+    <div style="margin-bottom: 2rem;">
+        <img src="{{ url_for('static', filename='imagenes/logo.png') }}" alt="Maipú Ahorra Logo"
+            style="max-width: 250px; border-radius: 50%; box-shadow: 0 0 30px rgba(0, 243, 255, 0.4), 0 0 50px rgba(255, 42, 75, 0.2);">
+    </div>
+    <h1 style="font-size: 3.5rem; margin-bottom: 1rem;">
+        Compara para ahorrar <br> <span class="neon-text-alt">Dinero y tiempo</span>
+    </h1>
+    <p style="font-size: 1.2rem; color: var(--text-primary); max-width: 600px; margin: 0 auto 3rem;">
+        Encontrá los mejores precios en Maipú. Arma tu lista de compras,
+        compara entre supermercados y genera descuentos exclusivos.
+    </p>
+
+    <div style="display: flex; justify-content: center; gap: 2rem;">
+        <div class="card" style="max-width: 350px;">
+            <h3 class="neon-text">Para Compradores</h3>
+            <p>Busca productos, crea listas de compras y descubre qué mercado te conviene más. ¡Obtené descuentos!</p>
+            <br>
+            {% if current_user.is_authenticated %}
+                {% if current_user.role == 'client' %}
+                <a href="{{ url_for('client_home') }}" class="btn-primary" style="display: inline-block;">Ir a Mi Panel</a>
+                {% else %}
+                <a href="#" onclick="alert('Ya tienes una sesión abierta como mercado. Cierra sesión para entrar como cliente.'); return false;" class="btn-primary" style="display: inline-block;">Empieza a Ahorrar</a>
+                {% endif %}
+            {% else %}
+            <a href="{{ url_for('auth.login') }}" class="btn-primary" style="display: inline-block;">Iniciar Sesión</a>
+            {% endif %}
+        </div>
+
+        <div class="card" style="max-width: 350px;">
+            <h3 class="neon-text">Para Mercados</h3>
+            <p>Subí tu catálogo, actualizá precios y atraé a más clientes de la ciudad mostrando tus promociones.</p>
+            <br>
+            {% if current_user.is_authenticated %}
+                {% if current_user.role == 'market' %}
+                <a href="{{ url_for('market_dashboard') }}" class="btn-outline" style="display: inline-block;">Ir a Mi Panel de Mercado</a>
+                {% else %}
+                <a href="#" onclick="alert('Ya tienes una sesión abierta como cliente. Cierra sesión para registrar un mercado.'); return false;" class="btn-outline" style="display: inline-block;">Empezar a Administrar o Registrate</a>
+                {% endif %}
+            {% else %}
+            <a href="{{ url_for('auth.login') }}" class="btn-outline" style="display: inline-block;">Iniciar Sesión</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

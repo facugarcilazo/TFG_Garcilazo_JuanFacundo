@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Pedidos Anteriores - Market Compare{% endblock %}
+
+{% block content %}
+<div class="card fade-in" style="margin-top: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h2 class="neon-text">Pedidos Anteriores</h2>
+        <a href="{{ url_for('client_home') }}" class="btn-outline">Volver al Panel</a>
+    </div>
+
+    {% if discount_codes %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+        {% for code in discount_codes %}
+        <div class="card" style="padding: 1.5rem; background: rgba(31, 40, 51, 0.4); border-color: var(--neon-blue-dark);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <h3 class="neon-text" style="letter-spacing: 1px; font-size: 1.5rem; margin: 0;">{{ code.code }}</h3>
+                <span style="font-size: 0.8rem; color: #888;">{{ code.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <p style="margin-bottom: 0.5rem;"><strong>Descuento:</strong> {{ code.discount_percentage }}% OFF</p>
+                <p style="margin-bottom: 0.5rem; color: #4CAF50;"><strong>Ahorro:</strong> ${{ "%.2f"|format(code.savings_amount) }}</p>
+                {% if code.donation_amount > 0 %}
+                <p style="margin-bottom: 0.5rem; color: #ffeb3b;"><strong>Donado:</strong> ${{ "%.2f"|format(code.donation_amount) }}</p>
+                {% endif %}
+            </div>
+
+            <div style="text-align: center; border-top: 1px solid rgba(102, 252, 241, 0.2); padding-top: 1rem;">
+                {% if code.used %}
+                <span style="color: #ff6b6b; font-size: 0.9rem;">Código ya utilizado</span>
+                {% else %}
+                <span style="color: var(--neon-blue); font-size: 0.9rem;">Código válido</span>
+                <div style="margin-top: 0.5rem;">
+                    <a href="{{ url_for('client_view_code', code_id=code.id) }}" class="btn-primary" style="font-size: 0.8rem; padding: 0.4rem 1rem; text-decoration: none;">Ver QR y Donar</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 3rem; background: rgba(31, 40, 51, 0.3); border-radius: 8px;">
+        <p style="color: var(--text-primary); font-size: 1.1rem; margin-bottom: 1.5rem;">No tienes pedidos confirmados todavía.</p>
+        <a href="{{ url_for('client_shop') }}" class="btn-primary" style="text-decoration: none;">Comenzar a comprar</a>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Registro - Market Compare{% endblock %}
+
+{% block content %}
+<div class="card fade-in" style="max-width: 500px; margin: 5vh auto;">
+    <h2 class="neon-text" style="text-align: center; margin-bottom: 2rem;">
+        Registro de {% if reg_type == 'market' %}Mercado{% else %}Usuario{% endif %}
+    </h2>
+
+    <form method="POST" action="{{ url_for('auth.register', type=reg_type) }}">
+        <input type="hidden" name="role" value="{{ reg_type }}">
+
+        <div class="form-group">
+            <label for="username" style="display: block; margin-bottom: 0.5rem;">Nombre de Usuario</label>
+            <input type="text" id="username" name="username" class="form-control" required
+                placeholder="Elige un usuario">
+        </div>
+
+        <div class="form-group">
+            <label for="email" style="display: block; margin-bottom: 0.5rem;">Correo Electrónico</label>
+            <input type="email" id="email" name="email" class="form-control" required placeholder="tu@email.com">
+        </div>
+
+        <div class="form-group">
+            <label for="password" style="display: block; margin-bottom: 0.5rem;">Contraseña</label>
+            <input type="password" id="password" name="password" class="form-control" required
+                placeholder="Mínimo 8 caracteres">
+        </div>
+
+        {% if reg_type == 'market' %}
+        <div style="border-top: 1px solid var(--neon-blue-dark); margin: 2rem 0; padding-top: 1rem;">
+            <h4 class="neon-text" style="font-size: 1.1rem; margin-bottom: 1rem;">Datos del Mercado</h4>
+            <div class="form-group">
+                <label for="market_name" style="display: block; margin-bottom: 0.5rem;">Nombre del Mercado</label>
+                <input type="text" id="market_name" name="market_name" class="form-control" required
+                    placeholder="Supermercado Ejemplo">
+            </div>
+
+            <div class="form-group">
+                <label for="address" style="display: block; margin-bottom: 0.5rem;">Dirección Físico</label>
+                <input type="text" id="address" name="address" class="form-control" required
+                    placeholder="Calle Falsa 123">
+            </div>
+        </div>
+        {% endif %}
+
+        <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Registrar Cuenta</button>
+    </form>
+
+    <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem;">
+        ¿Ya tienes cuenta? <a href="{{ url_for('auth.login') }}">Inicia Sesión</a>
+    </p>
+    {% if reg_type == 'client' %}
+    <p style="text-align: center; margin-top: 0.5rem; font-size: 0.9rem;">
+        ¿Eres un mercado? <a href="{{ url_for('auth.register', type='market') }}">Regístrate aquí</a>
+    </p>
+    {% else %}
+    <p style="text-align: center; margin-top: 0.5rem; font-size: 0.9rem;">
+        ¿Eres comprador? <a href="{{ url_for('auth.register') }}">Regístrate aquí</a>
+    </p>
+    {% endif %}
+</div>
+{% endblock %}
