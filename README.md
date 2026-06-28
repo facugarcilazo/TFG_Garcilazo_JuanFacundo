@@ -1,6 +1,6 @@
 # Maipú Ahorra 
 
-**Maipú Ahorra** es una aplicación web de comparación de precios diseñada con estética Neón desarrollada para el Seminario Final de Informática. Esta app permite a los ciudadanos encontrar los supermercados locales con los precios más baratos para sus listas de compras, generando códigos de descuento y brindando métricas de *Business Intelligence* a los dueños de los locales.
+ Maipú Ahorra es una aplicación web de comparación de precios diseñada con estética Neón desarrollada para el Seminario Final de Informática. Esta app permite a los ciudadanos encontrar los supermercados locales con los precios más baratos para sus listas de compras, generando códigos de descuento y brindando métricas de *Business Intelligence* a los dueños de los locales.
 
 ## Características Principales
 
