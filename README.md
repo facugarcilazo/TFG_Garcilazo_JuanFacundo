@@ -1,20 +1,20 @@
-# Maipú Ahorra 
+ Maipú Ahorra 
 
  Maipú Ahorra es una aplicación web de comparación de precios diseñada con estética Neón desarrollada para el Seminario Final de Informática. Esta app permite a los ciudadanos encontrar los supermercados locales con los precios más baratos para sus listas de compras, generando códigos de descuento y brindando métricas de *Business Intelligence* a los dueños de los locales.
 
-## Características Principales
+Características Principales
 
-### Para Compradores (Clientes)
+Para Compradores (Clientes)
 **Catálogo Global:** Búsqueda rápida de productos por nombre o categoría.
 **Carrito Inteligente:** Agrega productos a tu lista (ajustando las cantidades) y el sistema calculará automáticamente qué supermercado local ofrece el total más barato.
 **Códigos de Descuento:** Al confirmar la lista, se autogenera un código único que puedes presentar en la caja del local ganador.
 **Verificación de Seguridad:** Sistema de registro con validación por correo electrónico.
 
-### Para Dueños de Locales (Mercados)
+Para Dueños de Locales (Mercados)
 **Gestión de Precios:** Actualización rápida de los precios del catálogo para competir de manera directa.
 **Dashboard de Business Intelligence (BI):** Tarjetas de métricas en tiempo real que muestran cuántas listas han ganado en el mes, ingresos potenciales generados y número de clientes únicos atraídos por sus ofertas.
 
-## Tecnologías
+Tecnologías
 
 | Componente | Versión | Justificación |
 | :--- | :--- | :--- |
@@ -24,7 +24,7 @@
 | **SQLAlchemy**| 3.1.1 | ORM utilizado para interactuar con la base de datos mediante clases de Python, evitando inyecciones SQL. |
 | **HTML / CSS**| 5 / 3 | Construcción del frontend utilizando variables CSS puras para el tema Neón, sin requerir frameworks externos pesados. |
 
-## Arquitectura
+Arquitectura
 
 El sistema sigue una adaptación del patrón **Model-View-Controller (MVC)**:
 
@@ -49,7 +49,7 @@ proyecto-final-seminario/
     └── ...
 ```
 
-## Instalación y Ejecución Local
+Instalación y Ejecución Local
 
 Pasos para correr el proyecto loclamente:
 
@@ -87,7 +87,7 @@ Pasos para correr el proyecto loclamente:
 6. **Accede la App**
    Abre tu navegador y entra a: [http://127.0.0.1:5000](http://127.0.0.1:5000)
 
-##  Datos de Prueba
+Datos de Prueba
 
 Si ejecutaste el archivo `seed.py`, el sistema generará automáticamente los siguientes usuarios para que pruebes los diferentes roles (la contraseña para todos es **`12345`**):
 
@@ -97,7 +97,7 @@ Si ejecutaste el archivo `seed.py`, el sistema generará automáticamente los si
 
 > **Nota sobre los correos:** Durante el desarrollo local, el envío de correos electrónicos de validación de nuevas cuentas se encuentra en *Modo Simulado* para evitar errores sin credenciales SMTP. Si registras un usuario nuevo, busca el enlace de validación impreso directamente en la consola de tu terminal.
 
-## Estructura del Proyecto
+Estructura del Proyecto
 - `app.py`: Controlador principal, rutas y lógica del servidor Flask.
 - `auth.py`: Blueprint encargado de la seguridad, registro, login y validación de tokens.
 - `models.py`: Estructura del modelo relacional para la base de datos.
