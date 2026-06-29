@@ -1,8 +1,8 @@
 Trabajo Final de Grado Garcilazo Juan Facundo
 # Maipú Ahorra 
-&nbsp; Link de video donde ejecuto la app: https://www.youtube.com/watch?v=wmZK1Ug1CCg
+&emsp; Link de video donde ejecuto la app: https://www.youtube.com/watch?v=wmZK1Ug1CCg
 
-&nbsp;&nbsp;Maipú Ahorra es una aplicación web de comparación de precios diseñada con estética Neón desarrollada para el Seminario Final de Informática. Esta app permite a los ciudadanos encontrar los supermercados locales con los precios más baratos para sus listas de compras, generando códigos de descuento y brindando métricas de Business Intelligence a los dueños de los locales.
+&emsp; Maipú Ahorra es una aplicación web de comparación de precios diseñada con estética Neón desarrollada para el Seminario Final de Informática. Esta app permite a los ciudadanos encontrar los supermercados locales con los precios más baratos para sus listas de compras, generando códigos de descuento y brindando métricas de Business Intelligence a los dueños de los locales.
 
 ## Características Principales
 
@@ -28,7 +28,7 @@ Trabajo Final de Grado Garcilazo Juan Facundo
 
 ## Arquitectura
 
-El sistema sigue una adaptación del patrón **Model-View-Controller (MVC)**:
+&emsp; El sistema sigue una adaptación del patrón **Model-View-Controller (MVC)**:
 
 ```text
 proyecto-final-seminario/
@@ -51,9 +51,9 @@ proyecto-final-seminario/
     └── ...
 ```
 
-## Instalación y Ejecución Local
+## Instalación y ejecución local
 
-Pasos para correr el proyecto localmente:
+Pasos para correr el proyecto:
 
 1. **Clonar el repositorio**
    ```bash
@@ -103,5 +103,5 @@ Estructura del Proyecto
 - `app.py`: Controlador principal, rutas y lógica del servidor Flask.
 - `auth.py`: Blueprint encargado de la seguridad, registro, login y validación de tokens.
 - `models.py`: Estructura del modelo relacional para la base de datos.
-- `templates/`: Plantillas HTML (vistas).
-- `static/`: Hojas de estilo CSS e imágenes.
+- `templates/`: Plantillas html.
+- `static/`: Estilo CSS e imágenes.
