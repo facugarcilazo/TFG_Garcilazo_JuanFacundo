@@ -67,7 +67,7 @@ Pasos para correr el proyecto localmente:
    python -m venv venv
    .\venv\Scripts\activate
    ```
-   *(Si usas Mac/Linux: `source venv/bin/activate`)*
+   (Si se usa en Mac/Linux: `source venv/bin/activate`)
 
 3. **Instalar las dependencias**
    ```bash
@@ -84,10 +84,10 @@ Pasos para correr el proyecto localmente:
    ```bash
    python app.py
    ```
-   *(Nota para usuarios Windows: alternativamente, puedes hacer doble clic en el archivo `run.bat` de la carpeta raíz).*
+   (EN Windows podes hacer doble clic en el archivo `run.bat`)
 
 6. **Accede la App**
-   Abre tu navegador y entra a: [http://127.0.0.1:5000](http://127.0.0.1:5000)
+   Abrir el navegador y entrar a: [http://127.0.0.1:5000](http://127.0.0.1:5000)
 
 ## Datos de Prueba
 
@@ -97,7 +97,7 @@ Si ejecutas el archivo `seed.py`, el sistema generará automáticamente los sigu
 - **Mercado 1:** `mercadoeco+@prueba.com`
 - **Mercado 2:** `mercadototo@prueba.com`
 
-> **Nota sobre los correos:** Durante el desarrollo local el envío de correos electrónicos de validación de nuevas cuentas se encuentra en *Modo Simulado* para evitar errores sin credenciales SMTP. Si registras un usuario nuevo buscar el enlace de validación impreso directamente en la consola de tu terminal.
+> Nota sobre los mails: Durante el desarrollo local el envío de los mails de validación de nuevas cuentas se encuentra en modo prueba para evitar errores sin credenciales SMTP. Si se registra un usuario nuevo buscar el enlace de validación impreso directamente en la consola de tu terminal.
 
 Estructura del Proyecto
 - `app.py`: Controlador principal, rutas y lógica del servidor Flask.
