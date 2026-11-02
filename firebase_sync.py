@@ -1,3 +1,4 @@
+import os
 import json
 import urllib.request
 from datetime import datetime
@@ -13,9 +14,10 @@ from models import (
     DiscountCode,
 )
 
-# URL de Firebase Realtime Database para persistencia en la nube (nodo separado /maipu_ahorra)
-FIREBASE_DB_URL = "https://nursing-dictionary-808e3-default-rtdb.firebaseio.com"
-FIREBASE_NODE = "maipu_ahorra"
+# URL de tu base de datos exclusiva de Firebase Realtime Database para Maipú Ahorra
+# Ejemplo: "https://maipu-ahorra-default-rtdb.firebaseio.com"
+FIREBASE_DB_URL = os.environ.get("FIREBASE_DB_URL", "").rstrip("/")
+FIREBASE_NODE = "maipu_ahorra_db"
 
 _is_restoring = False
 
