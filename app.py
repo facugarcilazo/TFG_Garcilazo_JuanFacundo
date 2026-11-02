@@ -482,6 +482,16 @@ def create_app():
         from models import User, Market, Product, MarketPrice, ShoppingList, ShoppingListItem, DiscountCode
         db.create_all()
 
+    from firebase_sync import init_firebase_sync, pull_from_firebase, push_to_firebase
+    init_firebase_sync(app)
+
+    @app.route('/api/sync', methods=['POST'])
+    def manual_cloud_sync():
+        from flask import jsonify
+        pulled = pull_from_firebase()
+        pushed = push_to_firebase()
+        return jsonify({'status': 'ok', 'pulled': pulled, 'pushed': pushed})
+
     return app
 
 app = create_app()
