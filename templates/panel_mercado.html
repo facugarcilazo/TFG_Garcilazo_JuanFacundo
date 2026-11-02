@@ -4,21 +4,22 @@
 {% block content %}
 <div class="card fade-in" style="margin-top: 2rem;">
     <div
-        style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--neon-blue-dark); padding-bottom: 1rem; margin-bottom: 2rem;">
-        <h2 class="neon-text">Panel del Mercado: {{ current_user.markets[0].name }}</h2>
-        <button class="btn-primary" onclick="toggleAddProduct()">+ Nuevo Precio</button>
+        style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--neon-blue-dark); padding-bottom: 1rem; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <h2 class="neon-text" style="margin: 0;">Panel del Mercado: {{ current_user.markets[0].name }}</h2>
+        <a href="{{ url_for('market_scan') }}" class="btn-primary" style="display: inline-block;">📷 Escanear Código de Comprador</a>
     </div>
 
     <!-- BI Dashboard Section -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+    <h3 class="neon-text" style="margin-bottom: 1rem;">Estadísticas</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
         <div class="card" style="text-align: center; border: 1px solid var(--neon-blue); box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);">
-            <h4 style="color: var(--text-primary); margin-bottom: 0.5rem;">Listas Ganadas (Mes)</h4>
+            <h4 style="color: var(--text-primary); margin-bottom: 0.5rem;">Listas de Compras (Mes)</h4>
             <div class="neon-text" style="font-size: 2.5rem; font-weight: bold;">{{ bi_stats.monthly_won_lists }}</div>
             <p style="font-size: 0.8rem; color: #888;">Histórico global: {{ bi_stats.total_won_lists }}</p>
         </div>
         
         <div class="card" style="text-align: center; border: 1px solid var(--neon-pink); box-shadow: 0 0 15px rgba(255, 42, 75, 0.1);">
-            <h4 style="color: var(--text-primary); margin-bottom: 0.5rem;">Clientes Únicos (Mes)</h4>
+            <h4 style="color: var(--text-primary); margin-bottom: 0.5rem;">Clientes Nuevos (Mes)</h4>
             <div class="neon-text-alt" style="font-size: 2.5rem; font-weight: bold;">{{ bi_stats.monthly_unique_clients }}</div>
             <p style="font-size: 0.8rem; color: #888;">Histórico global: {{ bi_stats.unique_clients }}</p>
         </div>
@@ -30,31 +31,108 @@
         </div>
     </div>
 
+    <div style="margin-bottom: 3rem; text-align: center;">
+        <button class="btn-primary" onclick="toggleAddProduct()" style="font-size: 1.1rem; padding: 0.8rem 2rem;">+ Nuevo Producto</button>
+    </div>
+
     <!-- Form for adding a product price (hidden by default) -->
     <div id="addProductForm" class="card"
         style="display: none; background-color: rgba(31, 40, 51, 0.5); margin-bottom: 2rem; border-color: var(--neon-blue);">
         <h3 class="neon-text">Actualizar Precio de Producto</h3>
-        <form method="POST" action="{{ url_for('market_update_price') }}">
+        <form method="POST" action="{{ url_for('market_update_price') }}" enctype="multipart/form-data">
+            
+            <div style="margin-bottom: 1.5rem;">
+                <label style="margin-right: 1rem; cursor: pointer;">
+                    <input type="radio" name="product_mode" value="existing" checked onchange="toggleProductMode()"> Seleccionar Existente
+                </label>
+                <label style="cursor: pointer;">
+                    <input type="radio" name="product_mode" value="new" onchange="toggleProductMode()"> Crear Nuevo Producto
+                </label>
+            </div>
+
             <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                <div class="form-group" style="flex: 1; min-width: 200px;">
-                    <label>Producto Existent (Catálogo):</label>
-                    <select name="product_id" class="form-control" required>
+                
+                <!-- Existente -->
+                <div class="form-group" id="existing_product_div" style="flex: 1; min-width: 200px;">
+                    <label>Producto Existente (Catálogo):</label>
+                    <select name="product_id" id="product_id" class="form-control" required>
                         <option value="">-- Seleccionar --</option>
                         {% for prod in all_products %}
                         <option value="{{ prod.id }}">{{ prod.name }} ({{ prod.category }})</option>
                         {% endfor %}
                     </select>
                 </div>
+
+                <!-- Nuevo Producto -->
+                <div class="form-group" id="new_product_div" style="display: none; flex: 2; min-width: 300px; border-left: 2px solid var(--neon-blue); padding-left: 1rem;">
+                    <label>Nombre del Producto:</label>
+                    <input type="text" name="new_product_name" id="new_product_name" class="form-control" style="margin-bottom: 1rem;" placeholder="Ej: Galletas dulces">
+                    
+                    <label>Categoría:</label>
+                    <input type="text" name="new_product_category" id="new_product_category" class="form-control" style="margin-bottom: 1rem;" placeholder="Ej: Despensa">
+                    
+                    <label>Imagen del Producto:</label>
+                    <input type="file" name="new_product_image" id="new_product_image" class="form-control" accept="image/*">
+                </div>
+
+                <!-- Precio (Siempre visible) -->
                 <div class="form-group" style="flex: 1; min-width: 150px;">
                     <label>Precio ($):</label>
                     <input type="number" step="0.01" name="price" class="form-control" required
                         placeholder="Ej: 150.50">
                 </div>
-                <div class="form-group" style="display: flex; align-items: flex-end;">
-                    <button type="submit" class="btn-primary" style="height: 45px;">Guardar Precio</button>
+
+                <!-- Stock (Siempre visible) -->
+                <div class="form-group" style="flex: 1; min-width: 120px;">
+                    <label>Stock:</label>
+                    <input type="number" step="1" min="0" name="stock" class="form-control" value="100" required
+                        placeholder="Ej: 100">
+                </div>
+                
+                <div class="form-group" style="display: flex; align-items: flex-end; width: 100%; margin-top: 1rem;">
+                    <button type="submit" class="btn-primary" style="height: 45px; width: 100%;">Guardar Precio y/o Producto</button>
                 </div>
             </div>
         </form>
+    </div>
+
+    <!-- Modal / Formulario para Editar Producto -->
+    <div id="editProductModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); z-index: 1000; align-items: center; justify-content: center; padding: 1rem; box-sizing: border-box;">
+        <div class="card fade-in" style="width: 100%; max-width: 500px; border: 2px solid var(--neon-blue); background-color: #12171f; box-shadow: 0 0 30px rgba(0, 243, 255, 0.25);">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--neon-blue-dark); padding-bottom: 0.8rem; margin-bottom: 1.2rem;">
+                <h3 class="neon-text" style="margin: 0;">Editar Producto</h3>
+                <button type="button" onclick="closeEditModal()" style="background: none; border: none; color: #aaa; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            
+            <form id="editProductForm" method="POST" action="">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label>ID del Producto:</label>
+                    <input type="number" name="product_id" id="edit_product_id" class="form-control" min="1" required>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label>Nombre del Producto:</label>
+                    <input type="text" name="product_name" id="edit_product_name" class="form-control" required>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Precio ($):</label>
+                        <input type="number" step="0.01" min="0" name="price" id="edit_price" class="form-control" required>
+                    </div>
+
+                    <div class="form-group" style="flex: 1;">
+                        <label>Stock (Unidades):</label>
+                        <input type="number" step="1" min="0" name="stock" id="edit_stock" class="form-control" required>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn-outline" onclick="closeEditModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- Table of current prices -->
@@ -64,9 +142,11 @@
         <table style="width: 100%; border-collapse: collapse; text-align: left;">
             <thead>
                 <tr style="border-bottom: 1px solid var(--neon-blue-dark); color: var(--neon-blue);">
+                    <th style="padding: 1rem;">ID</th>
                     <th style="padding: 1rem;">Producto</th>
                     <th style="padding: 1rem;">Categoría</th>
                     <th style="padding: 1rem;">Precio</th>
+                    <th style="padding: 1rem;">Stock</th>
                     <th style="padding: 1rem;">Última Actualización</th>
                     <th style="padding: 1rem;">Acciones</th>
                 </tr>
@@ -74,12 +154,26 @@
             <tbody>
                 {% for mp in market_prices %}
                 <tr style="border-bottom: 1px solid rgba(102, 252, 241, 0.2);">
-                    <td style="padding: 1rem;">{{ mp.product.name }}</td>
+                    <td style="padding: 1rem; color: #aaa;">#{{ mp.product.id }}</td>
+                    <td style="padding: 1rem; font-weight: 500;">{{ mp.product.name }}</td>
                     <td style="padding: 1rem;">{{ mp.product.category }}</td>
                     <td style="padding: 1rem;" class="neon-text">${{ "%.2f"|format(mp.price) }}</td>
+                    <td style="padding: 1rem;">
+                        <span style="padding: 0.2rem 0.6rem; border-radius: 4px; background: {% if mp.stock > 0 %}rgba(0, 243, 255, 0.12){% else %}rgba(255, 42, 75, 0.2){% endif %}; color: {% if mp.stock > 0 %}var(--neon-blue){% else %}var(--neon-pink){% endif %}; font-weight: bold;">
+                            {{ mp.stock }} u.
+                        </span>
+                    </td>
                     <td style="padding: 1rem;">{{ mp.last_updated.strftime('%Y-%m-%d %H:%M') }}</td>
                     <td style="padding: 1rem;">
-                        <a href="#" class="btn-outline" style="padding: 0.3rem 0.8rem; font-size: 0.8rem;">Editar</a>
+                        <button type="button" class="btn-outline" style="padding: 0.3rem 0.8rem; font-size: 0.8rem; cursor: pointer;"
+                                data-mp-id="{{ mp.id }}"
+                                data-prod-id="{{ mp.product.id }}"
+                                data-prod-name="{{ mp.product.name }}"
+                                data-price="{{ '%.2f'|format(mp.price) }}"
+                                data-stock="{{ mp.stock }}"
+                                onclick="openEditModal(this)">
+                            Editar
+                        </button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -102,5 +196,59 @@
             form.style.display = 'none';
         }
     }
+    
+    function toggleProductMode() {
+        const mode = document.querySelector('input[name="product_mode"]:checked').value;
+        const existingDiv = document.getElementById('existing_product_div');
+        const newDiv = document.getElementById('new_product_div');
+        const productIdSelect = document.getElementById('product_id');
+        const newNameInput = document.getElementById('new_product_name');
+        const newCatInput = document.getElementById('new_product_category');
+        
+        if (mode === 'existing') {
+            existingDiv.style.display = 'block';
+            newDiv.style.display = 'none';
+            productIdSelect.required = true;
+            newNameInput.required = false;
+            newCatInput.required = false;
+        } else {
+            existingDiv.style.display = 'none';
+            newDiv.style.display = 'block';
+            productIdSelect.required = false;
+            newNameInput.required = true;
+            newCatInput.required = true;
+        }
+    }
+
+    function openEditModal(btn) {
+        const mpId = btn.getAttribute('data-mp-id');
+        const prodId = btn.getAttribute('data-prod-id');
+        const prodName = btn.getAttribute('data-prod-name');
+        const price = btn.getAttribute('data-price');
+        const stock = btn.getAttribute('data-stock');
+
+        const form = document.getElementById('editProductForm');
+        form.action = "/market/edit_product/" + mpId;
+
+        document.getElementById('edit_product_id').value = prodId;
+        document.getElementById('edit_product_name').value = prodName;
+        document.getElementById('edit_price').value = price;
+        document.getElementById('edit_stock').value = stock;
+
+        const modal = document.getElementById('editProductModal');
+        modal.style.display = 'flex';
+    }
+
+    function closeEditModal() {
+        const modal = document.getElementById('editProductModal');
+        modal.style.display = 'none';
+    }
+
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('editProductModal');
+        if (event.target === modal) {
+            closeEditModal();
+        }
+    });
 </script>
 {% endblock %}

@@ -29,12 +29,12 @@ body {
 /* Typography & Neons */
 .neon-text {
     color: var(--neon-blue);
-    text-shadow: 0 0 5px var(--neon-blue), 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
+    text-shadow: 0 0 2px var(--neon-blue), 0 0 6px var(--neon-blue-dark);
 }
 
 .neon-text-alt {
     color: var(--neon-pink);
-    text-shadow: 0 0 5px var(--neon-pink), 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink);
+    text-shadow: 0 0 2px var(--neon-pink), 0 0 6px var(--neon-pink-dark);
 }
 
 h1,

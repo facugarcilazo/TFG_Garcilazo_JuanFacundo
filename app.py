@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from models import db
 from flask_login import LoginManager, login_required, current_user
@@ -8,6 +9,11 @@ def create_app():
     app.config['SECRET_KEY'] = 'neon-market-secret-key-123'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///market.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    
+    # Directorio para subir imágenes
+    UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'imagenes', 'productos')
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
     # Configuración de Flask-Mail (Modo simulado por defecto para evitar errores si no hay credenciales)
     app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -86,29 +92,184 @@ def create_app():
     @app.route('/market/update_price', methods=['POST'])
     @login_required
     def market_update_price():
-        from flask import request, redirect, url_for, flash
+        from flask import request, redirect, url_for, flash, current_app
+        from werkzeug.utils import secure_filename
+        import os
+        
         if current_user.role != 'market':
             return redirect(url_for('index'))
             
-        product_id = request.form.get('product_id')
+        product_mode = request.form.get('product_mode')
         price = request.form.get('price')
+        stock = request.form.get('stock', 100, type=int)
         
-        from models import MarketPrice
+        from models import Product, MarketPrice
         market = current_user.markets[0]
         
+        if product_mode == 'existing':
+            product_id = request.form.get('product_id')
+            if not product_id:
+                flash('Debe seleccionar un producto.', 'error')
+                return redirect(url_for('market_dashboard'))
+        else:
+            new_name = request.form.get('new_product_name')
+            new_category = request.form.get('new_product_category')
+            image_file = request.files.get('new_product_image')
+            
+            if not new_name or not new_category:
+                flash('Nombre y categoría son requeridos para un nuevo producto.', 'error')
+                return redirect(url_for('market_dashboard'))
+                
+            image_url = None
+            if image_file and image_file.filename != '':
+                filename = secure_filename(image_file.filename)
+                # Asegurar un nombre único si se desea, o simplemente usar el provisto
+                save_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+                image_file.save(save_path)
+                image_url = f'imagenes/productos/{filename}'
+                
+            new_prod = Product(name=new_name, category=new_category, image_url=image_url)
+            db.session.add(new_prod)
+            db.session.flush() # para obtener el ID
+            product_id = new_prod.id
+            
         # comprobar si el precio ya existe
         mp = MarketPrice.query.filter_by(market_id=market.id, product_id=product_id).first()
         if mp:
             mp.price = float(price)
+            mp.stock = stock
             from datetime import datetime
             mp.last_updated = datetime.utcnow()
         else:
-            new_price = MarketPrice(market_id=market.id, product_id=product_id, price=float(price))
+            new_price = MarketPrice(market_id=market.id, product_id=product_id, price=float(price), stock=stock)
             db.session.add(new_price)
             
         db.session.commit()
-        flash('Precio actualizado correctamente', 'success')
+        flash('Precio y producto actualizados correctamente', 'success')
         return redirect(url_for('market_dashboard'))
+
+    @app.route('/market/edit_product/<int:mp_id>', methods=['POST'])
+    @login_required
+    def market_edit_product(mp_id):
+        from flask import request, redirect, url_for, flash
+        from models import Product, MarketPrice, ShoppingListItem
+        from datetime import datetime
+        
+        if current_user.role != 'market':
+            return redirect(url_for('index'))
+            
+        market = current_user.markets[0]
+        mp = MarketPrice.query.get_or_404(mp_id)
+        
+        if mp.market_id != market.id:
+            flash('No tienes permiso para editar este registro.', 'error')
+            return redirect(url_for('market_dashboard'))
+            
+        new_product_id = request.form.get('product_id', type=int)
+        new_name = request.form.get('product_name', '').strip()
+        new_price = request.form.get('price', type=float)
+        new_stock = request.form.get('stock', type=int)
+        
+        product = mp.product
+        old_product_id = product.id
+        
+        if not new_name or new_price is None or new_stock is None or not new_product_id:
+            flash('Todos los campos (ID, Nombre, Precio y Stock) son obligatorios.', 'error')
+            return redirect(url_for('market_dashboard'))
+            
+        # Si el usuario modificó el ID del producto, validar que no esté ocupado
+        if new_product_id != old_product_id:
+            existing_prod = Product.query.get(new_product_id)
+            if existing_prod:
+                flash(f'El ID de producto {new_product_id} ya está en uso por "{existing_prod.name}".', 'error')
+                return redirect(url_for('market_dashboard'))
+                
+            # Actualizar referencias al nuevo ID de producto
+            MarketPrice.query.filter_by(product_id=old_product_id).update({'product_id': new_product_id})
+            ShoppingListItem.query.filter_by(product_id=old_product_id).update({'product_id': new_product_id})
+            product.id = new_product_id
+            
+        product.name = new_name
+        mp.price = new_price
+        mp.stock = new_stock
+        mp.last_updated = datetime.utcnow()
+        
+        db.session.commit()
+        flash('Producto actualizado correctamente (ID, nombre, precio y stock).', 'success')
+        return redirect(url_for('market_dashboard'))
+
+    @app.route('/market/scan')
+    @login_required
+    def market_scan():
+        from flask import render_template, redirect, url_for, request, flash
+        from models import DiscountCode, MarketPrice, User
+        if current_user.role != 'market':
+            return redirect(url_for('index'))
+            
+        market = current_user.markets[0]
+        code_str = request.args.get('code', '').strip().upper()
+        scanned_code = None
+        order_items = []
+        subtotal = 0.0
+        discount_amount = 0.0
+        final_total = 0.0
+        buyer_user = None
+        
+        if code_str:
+            scanned_code = DiscountCode.query.filter_by(code=code_str).first()
+            if not scanned_code:
+                flash(f'No se encontró ningún pedido con el código "{code_str}".', 'error')
+            else:
+                buyer_user = User.query.get(scanned_code.user_id)
+                target_market_id = scanned_code.market_id or market.id
+                
+                if scanned_code.shopping_list:
+                    for item in scanned_code.shopping_list.items:
+                        mp = MarketPrice.query.filter_by(market_id=target_market_id, product_id=item.product_id).first()
+                        unit_price = mp.price if mp else 0.0
+                        line_total = unit_price * item.quantity
+                        subtotal += line_total
+                        order_items.append({
+                            'name': item.product.name,
+                            'category': item.product.category,
+                            'quantity': item.quantity,
+                            'unit_price': unit_price,
+                            'line_total': line_total
+                        })
+                
+                if subtotal == 0.0 and scanned_code.total_amount > 0:
+                    subtotal = scanned_code.total_amount
+                    
+                discount_amount = subtotal * (scanned_code.discount_percentage / 100.0)
+                final_total = subtotal - discount_amount
+
+        return render_template('escanear_codigo.html',
+                               market=market,
+                               code_str=code_str,
+                               scanned_code=scanned_code,
+                               buyer_user=buyer_user,
+                               order_items=order_items,
+                               subtotal=subtotal,
+                               discount_amount=discount_amount,
+                               final_total=final_total)
+
+    @app.route('/market/scan/confirm/<int:code_id>', methods=['POST'])
+    @login_required
+    def market_confirm_code(code_id):
+        from flask import redirect, url_for, flash
+        from models import DiscountCode
+        if current_user.role != 'market':
+            return redirect(url_for('index'))
+            
+        code = DiscountCode.query.get_or_404(code_id)
+        if code.used:
+            flash(f'El código {code.code} ya había sido utilizado anteriormente.', 'error')
+        else:
+            code.used = True
+            db.session.commit()
+            flash(f'¡Venta aceptada! El código {code.code} fue canjeado con éxito.', 'success')
+            
+        return redirect(url_for('market_scan'))
 
     @app.route('/client')
     @login_required

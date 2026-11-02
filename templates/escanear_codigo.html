@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+{% block title %}Escanear Código - Maipú Ahorra{% endblock %}
+
+{% block content %}
+<div class="fade-in" style="max-width: 850px; margin: 2rem auto;">
+
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--neon-blue-dark); padding-bottom: 1rem; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h2 class="neon-text" style="margin: 0;">Escanear Código de Comprador</h2>
+            <p style="color: #aaa; margin: 0.3rem 0 0 0; font-size: 0.95rem;">Comercio: <strong>{{ market.name }}</strong></p>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+            <a href="{{ url_for('market_dashboard') }}" class="btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Ir a Mi Panel</a>
+            <a href="{{ url_for('index') }}" class="btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Inicio</a>
+        </div>
+    </div>
+
+    {% if not scanned_code %}
+    <!-- SECCIÓN DE ESCANEO Y BÚSQUEDA MANUAL -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        
+        <!-- Lector de Cámara QR -->
+        <div class="card" style="text-align: center; border: 1px solid var(--neon-blue);">
+            <h3 class="neon-text" style="margin-top: 0;">Lector QR con Cámara</h3>
+            <p style="font-size: 0.9rem; color: #bbb; margin-bottom: 1rem;">
+                Apuntá la cámara al código QR del comprador o subí una captura del QR.
+            </p>
+            
+            <div id="qr-reader" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(0,0,0,0.4); margin-bottom: 1rem;"></div>
+            
+            <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
+                <button type="button" id="start-camera-btn" class="btn-primary" onclick="startCameraScanner()">Activar Cámara</button>
+                <button type="button" id="stop-camera-btn" class="btn-outline" onclick="stopCameraScanner()" style="display: none;">Detener Cámara</button>
+                <label for="qr-file-input" class="btn-outline" style="cursor: pointer; display: inline-block;">
+                    Escanear desde Imagen
+                </label>
+                <input type="file" id="qr-file-input" accept="image/*" style="display: none;" onchange="scanUploadedFile(this)">
+            </div>
+            <p id="camera-status" style="font-size: 0.85rem; color: var(--neon-blue); margin-top: 0.8rem;"></p>
+        </div>
+
+        <!-- Ingreso Manual -->
+        <div class="card" style="display: flex; flex-direction: column; justify-content: center;">
+            <h3 class="neon-text" style="margin-top: 0;">Ingreso Manual</h3>
+            <p style="font-size: 0.9rem; color: #bbb; margin-bottom: 1.5rem;">
+                Si el comprador te dicta el código alfanumérico (ej. <code>NEON-XXXXXX</code>), podés escribirlo directamente aquí:
+            </p>
+            <form method="GET" action="{{ url_for('market_scan') }}" id="scan-form" style="display: flex; flex-direction: column; gap: 1rem;">
+                <input type="text" name="code" id="code-input" class="form-control" 
+                       placeholder="Ej: NEON-A1B2C3" value="{{ code_str }}" 
+                       style="font-size: 1.2rem; text-transform: uppercase; letter-spacing: 2px; text-align: center;" required>
+                <button type="submit" class="btn-primary" style="padding: 0.9rem; font-size: 1.05rem;">Buscar Pedido</button>
+            </form>
+        </div>
+
+    </div>
+    {% endif %}
+
+    {% if scanned_code %}
+    <!-- DETALLE DEL PEDIDO ESCANEADO -->
+    <div class="card" id="order-receipt" style="border: 2px solid {% if scanned_code.used %}var(--neon-pink){% else %}var(--neon-blue){% endif %};">
+        
+        <!-- Encabezado de Estado y Datos del Comprador -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+            <div>
+                <span style="font-size: 0.85rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px;">Código de Descuento</span>
+                <h2 class="neon-text" style="margin: 0.2rem 0; letter-spacing: 2px; font-size: 2rem;">{{ scanned_code.code }}</h2>
+                <p style="margin: 0.2rem 0; color: #ccc; font-size: 0.95rem;">
+                    <strong>Cliente:</strong> {{ buyer_user.username if buyer_user else 'Cliente' }} ({{ buyer_user.email if buyer_user else '' }})
+                </p>
+                <p style="margin: 0.2rem 0; color: #999; font-size: 0.85rem;">
+                    <strong>Fecha de emisión:</strong> {{ scanned_code.created_at.strftime('%d/%m/%Y %H:%M') }}
+                </p>
+                {% if scanned_code.market_id and scanned_code.market_id != market.id %}
+                <p style="margin: 0.5rem 0 0 0; color: #ffb74d; font-size: 0.9rem;">
+                    ⚠️ Nota: Este código fue cotizado originalmente para otro comercio ({{ scanned_code.market.name }}).
+                </p>
+                {% endif %}
+            </div>
+
+            <div style="text-align: right;">
+                {% if scanned_code.used %}
+                <span style="display: inline-block; background: rgba(255, 42, 75, 0.2); border: 1px solid var(--neon-pink); color: var(--neon-pink); padding: 0.5rem 1rem; border-radius: 6px; font-weight: bold; font-size: 0.95rem;">
+                    ❌ CÓDIGO YA UTILIZADO
+                </span>
+                {% else %}
+                <span style="display: inline-block; background: rgba(0, 243, 255, 0.15); border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 0.5rem 1rem; border-radius: 6px; font-weight: bold; font-size: 0.95rem;">
+                    ✅ CÓDIGO VÁLIDO DISPONIBLE
+                </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Tabla del Pedido (Sin imágenes) -->
+        <h3 style="margin-top: 0; margin-bottom: 0.8rem; color: var(--text-primary);">Detalle del Pedido</h3>
+        {% if order_items %}
+        <div style="overflow-x: auto; margin-bottom: 1.5rem;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--neon-blue-dark); color: var(--neon-blue);">
+                        <th style="padding: 0.75rem;">Producto</th>
+                        <th style="padding: 0.75rem;">Categoría</th>
+                        <th style="padding: 0.75rem; text-align: center;">Cantidad</th>
+                        <th style="padding: 0.75rem; text-align: right;">Precio Unit.</th>
+                        <th style="padding: 0.75rem; text-align: right;">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order_items %}
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+                        <td style="padding: 0.75rem; font-weight: 500;">{{ item.name }}</td>
+                        <td style="padding: 0.75rem; color: #aaa; font-size: 0.9rem;">{{ item.category }}</td>
+                        <td style="padding: 0.75rem; text-align: center; font-weight: bold;">{{ item.quantity }}</td>
+                        <td style="padding: 0.75rem; text-align: right;">${{ "%.2f"|format(item.unit_price) }}</td>
+                        <td style="padding: 0.75rem; text-align: right; font-weight: bold;">${{ "%.2f"|format(item.line_total) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p style="color: #aaa; margin-bottom: 1.5rem;">No se encontraron productos detallados en la lista asociada.</p>
+        {% endif %}
+
+        <!-- Resumen de Valores, Descuento de la App y Donación -->
+        <div style="background: rgba(11, 12, 16, 0.6); border: 1px solid rgba(102, 252, 241, 0.25); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.6rem; font-size: 1.05rem;">
+                <span style="color: #ccc;">Valor Subtotal del Pedido:</span>
+                <span>${{ "%.2f"|format(subtotal) }}</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.6rem; font-size: 1.05rem; color: var(--neon-blue);">
+                <span>Descuento por usar la App ({{ "%.0f"|format(scanned_code.discount_percentage) }}%):</span>
+                <span>- ${{ "%.2f"|format(discount_amount) }}</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; padding-top: 0.6rem; border-top: 1px solid rgba(255,255,255,0.15); font-size: 1.4rem; font-weight: bold;">
+                <span class="neon-text">TOTAL A COBRAR EN CAJA:</span>
+                <span style="color: #4CAF50;">${{ "%.2f"|format(final_total) }}</span>
+            </div>
+
+            <div style="margin-top: 1rem; padding-top: 0.8rem; border-top: 1px dashed rgba(255,255,255,0.15); display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: #ddd; font-size: 0.95rem;">Donación realizada por el comprador:</span>
+                {% if scanned_code.donation_amount and scanned_code.donation_amount > 0 %}
+                <span class="neon-text-alt" style="font-weight: bold; font-size: 1.1rem;">
+                    ❤️ ${{ "%.2f"|format(scanned_code.donation_amount) }} (Realizada)
+                </span>
+                {% else %}
+                <span style="color: #888; font-size: 0.95rem;">Sin donación registrada ($0.00)</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Botones de Acción: Aceptar, Cancelar y Extras -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                {% if not scanned_code.used %}
+                <form method="POST" action="{{ url_for('market_confirm_code', code_id=scanned_code.id) }}" style="margin: 0;">
+                    <button type="submit" class="btn-primary" style="padding: 0.85rem 1.8rem; font-size: 1.05rem; font-weight: bold;">
+                        ✓ Aceptar y Canjear Pedido
+                    </button>
+                </form>
+                {% endif %}
+                
+                <a href="{{ url_for('market_scan') }}" class="btn-outline" style="padding: 0.85rem 1.5rem; font-size: 1rem; border-color: var(--neon-pink); color: var(--neon-pink);">
+                    ✕ Cancelar / Escanear Otro
+                </a>
+            </div>
+
+            <button type="button" onclick="window.print()" class="btn-outline" style="padding: 0.75rem 1.2rem; font-size: 0.9rem;">
+                🖨️ Imprimir Comprobante
+            </button>
+        </div>
+
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- Librería html5-qrcode para leer QR desde cámara o imagen -->
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script>
+    let html5QrCode = null;
+
+    function onScanSuccess(decodedText, decodedResult) {
+        const statusEl = document.getElementById('camera-status');
+        if (statusEl) {
+            statusEl.innerText = '¡Código detectado: ' + decodedText + '! Cargando pedido...';
+        }
+        stopCameraScanner();
+        window.location.href = "{{ url_for('market_scan') }}?code=" + encodeURIComponent(decodedText.trim());
+    }
+
+    function startCameraScanner() {
+        const statusEl = document.getElementById('camera-status');
+        const startBtn = document.getElementById('start-camera-btn');
+        const stopBtn = document.getElementById('stop-camera-btn');
+
+        if (!html5QrCode) {
+            html5QrCode = new Html5Qrcode("qr-reader");
+        }
+
+        statusEl.innerText = "Solicitando acceso a la cámara...";
+        html5QrCode.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: { width: 230, height: 230 } },
+            onScanSuccess,
+            function(errorMessage) {
+                // Ignorar errores de fotogramas vacíos mientras busca el QR
+            }
+        ).then(() => {
+            statusEl.innerText = "Cámara activa. Apuntá al código QR del cliente.";
+            startBtn.style.display = "none";
+            stopBtn.style.display = "inline-block";
+        }).catch((err) => {
+            statusEl.innerText = "No se pudo iniciar la cámara (" + err + "). Podés subir una foto del QR o ingresar el código manualmente.";
+        });
+    }
+
+    function stopCameraScanner() {
+        const startBtn = document.getElementById('start-camera-btn');
+        const stopBtn = document.getElementById('stop-camera-btn');
+        const statusEl = document.getElementById('camera-status');
+
+        if (html5QrCode && html5QrCode.isScanning) {
+            html5QrCode.stop().then(() => {
+                if (startBtn) startBtn.style.display = "inline-block";
+                if (stopBtn) stopBtn.style.display = "none";
+                if (statusEl) statusEl.innerText = "Cámara detenida.";
+            }).catch((err) => {
+                console.error("Error al detener cámara:", err);
+            });
+        }
+    }
+
+    function scanUploadedFile(input) {
+        if (input.files.length === 0) return;
+        const imageFile = input.files[0];
+        const statusEl = document.getElementById('camera-status');
+
+        if (!html5QrCode) {
+            html5QrCode = new Html5Qrcode("qr-reader");
+        }
+
+        statusEl.innerText = "Analizando imagen...";
+        html5QrCode.scanFile(imageFile, true)
+            .then(decodedText => {
+                onScanSuccess(decodedText);
+            })
+            .catch(err => {
+                statusEl.innerText = "No se detectó un código QR válido en la imagen seleccionada.";
+            });
+    }
+</script>
+{% endblock %}

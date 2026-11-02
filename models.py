@@ -53,6 +53,7 @@ class MarketPrice(db.Model):
     market_id = db.Column(db.Integer, db.ForeignKey('market.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
     price = db.Column(db.Float, nullable=False)
+    stock = db.Column(db.Integer, default=100, nullable=False)
     last_updated = db.Column(db.DateTime, default=datetime.utcnow)
 
 class ShoppingList(db.Model):

@@ -37,7 +37,10 @@
             <br>
             {% if current_user.is_authenticated %}
                 {% if current_user.role == 'market' %}
-                <a href="{{ url_for('market_dashboard') }}" class="btn-outline" style="display: inline-block;">Ir a Mi Panel de Mercado</a>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: center;">
+                    <a href="{{ url_for('market_dashboard') }}" class="btn-outline" style="display: inline-block; width: 100%; box-sizing: border-box;">Ir a Mi Panel de Mercado</a>
+                    <a href="{{ url_for('market_scan') }}" class="btn-primary" style="display: inline-block; width: 100%; box-sizing: border-box;">Escanear Código de Comprador</a>
+                </div>
                 {% else %}
                 <a href="#" onclick="alert('Ya tienes una sesión abierta como cliente. Cierra sesión para registrar un mercado.'); return false;" class="btn-outline" style="display: inline-block;">Empezar a Administrar o Registrate</a>
                 {% endif %}
