@@ -15,8 +15,7 @@ from models import (
 )
 
 # URL de tu base de datos exclusiva de Firebase Realtime Database para Maipú Ahorra
-# Ejemplo: "https://maipu-ahorra-default-rtdb.firebaseio.com"
-FIREBASE_DB_URL = os.environ.get("FIREBASE_DB_URL", "").rstrip("/")
+FIREBASE_DB_URL = os.environ.get("FIREBASE_DB_URL", "https://maipu-ahorra-default-rtdb.firebaseio.com").rstrip("/")
 FIREBASE_NODE = "maipu_ahorra_db"
 
 _is_restoring = False
